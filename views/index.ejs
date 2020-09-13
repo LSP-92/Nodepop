@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> <%= title %> </title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <H1> <%= title %> </H1>
+    <% value.forEach(function(user){ %>
+      <fieldset>
+        <p>Name :<%= user.name %></p>
+        <p>Price <%= user.price %></p>
+        <p>State <%= user.state %></p>
+        <p>Tags <%= user.tags %></p>
+        <p> <%= user.img %> </p>
+      </fieldset>
+      <% }) %>
+  </body>
+</html>
