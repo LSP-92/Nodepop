@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "cross-env DEBUG=nodeapi:* PORT=3000 nodemon"
+    "dev": "cross-env DEBUG=nodeapi:* PORT=3000 nodemon", 
+    "init_db": "node initMongoDb.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
