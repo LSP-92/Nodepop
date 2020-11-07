@@ -22,7 +22,14 @@ router.get('/', async function (req, res, next) {
     if (state) { filters.state = state }
 
     const valueRes = await Ad.filters(filters, limit, sort, skip, mnPrice, mxPrice)
-    if (valueRes.length === 0) { return next('No data') }
+
+    if (valueRes.length === 0) {
+
+      const error = new Error('No hay resultados de busqueda') 
+      error.status = 404
+
+      return next(error) 
+    }
 
     res.render('index', { title: 'NodePOP', value: valueRes })
   } catch (err) {
@@ -32,15 +39,28 @@ router.get('/', async function (req, res, next) {
 })
 
 router.get('/img/:id', async function (req, res, next) {
+
   try {
+
     const id = req.params.id
     const valueRes = await Ad.findOne({ img: id })
-    if (valueRes) {
-      res.sendFile(path.join('/home/luis/Nodepop/Nodepop/public/api/', valueRes.img))
-      return
-    } else { next(650) }
+
+    if (!valueRes) {
+
+      const error = new Error('No image, check id')
+      error.status = 404
+
+      return next(error)
+    } 
+    
+    //TODO no se puede devolver la ruta revisar __dirname ''probar''
+    res.sendFile(path.join('/home/luis/Nodepop/Nodepop/public/api/', valueRes.img))
+
   } catch (err) {
-    next(err)
+
+    const error = new Error(err)
+    error.status = 500
+    next(error)
   }
 })
 

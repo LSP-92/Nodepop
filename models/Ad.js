@@ -1,6 +1,9 @@
 'use strict'
 
 const mongoose = require('mongoose')
+const amqpConnectPromise = require('../lib/amqpSender')
+const queueName = 'imagesProcess'
+
 
 // Definimos el esquema
 const adSchema = mongoose.Schema({
@@ -24,6 +27,23 @@ adSchema.statics.filters = function (filters, limit, sort, skip, mnPrice, mxPric
   query.find({ price: { $lt: mxPrice } })
 
   return query.exec()
+}
+
+adSchema.methods.sendQueue = async function () {
+  
+  const conn = await amqpConnectPromise
+  const channel = await conn.createChannel()
+
+  const awai = await channel.assertQueue(queueName, {
+    durable: true
+  })
+
+  channel.sendToQueue(queueName, Buffer.from(this.img), {
+    persistent: true
+  } )
+
+  console.log('message publish')
+  console.log(awai)
 }
 
 const Ad = mongoose.model('Ad', adSchema) // Creamos el modelo ads con el esquema adSchema

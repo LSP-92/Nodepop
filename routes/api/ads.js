@@ -7,7 +7,9 @@ const Ad = require('../../models/Ad')
 
 /* GET all BBDD Ads with or without filters */
 router.get('/', async function (req, res, next) {
+
   try {
+
     const sort = req.query.sort
     const limit = parseInt(req.query.limit || 10)
     const skip = parseInt(req.query.skip)
@@ -20,15 +22,50 @@ router.get('/', async function (req, res, next) {
     const mxPrice = parseFloat(req.query.mxPrice || 9999999.999)
 
     const filters = {}
-    if (name) { filters.name = new RegExp('^' + req.query.name) }
-    if (price) { filters.price = price }
-    if (tags) { filters.tags = tags }
-    console.log(filters.tags)
-    if (state) { filters.state = state }
-    if (img) { filters.img = img }
+    
+    if (!name) {
+      const error = new Error('No name found')
+      error.status =404
+      return next(error) 
+    } 
 
+    if (!price) {
+      const error = new Error('No price found')
+      error.status =404
+      return next(error) 
+    } 
+
+    if (!tags) {
+      const error = new Error('No tags found')
+      error.status =404
+      return next(error) 
+    }
+
+    if (!state) {
+      const error = new Error('No state found')
+      error.status =404
+      return next(error) 
+    }
+
+    if (!img) {
+      const error = new Error('No img found')
+      error.status =404
+      return next(error) 
+    } 
+              
+    filters.state = state
+    filters.img = img 
+    filters.name = new RegExp('^' + req.query.name)
+    filters.price = price 
+    filters.tags = tags
+    
     const valueRes = await Ad.filters(filters, limit, sort, skip, mnPrice, mxPrice)
-    if (valueRes.length === 0) { return next(600) } // No data en consulta
+
+    if (valueRes.length === 0) { 
+      const error = new Error('No data found')
+      error.status =404
+      return next(error) 
+    }
 
     res.json(valueRes)
   } catch (err) {
@@ -37,6 +74,8 @@ router.get('/', async function (req, res, next) {
 })
 
 // Create Ads
+
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -47,47 +86,72 @@ const storage = multer.diskStorage({
     cb(null, myFilename)
   }
 })
+
 const uploadImg = multer({ storage: storage })
+
+
 
 router.post('/new', uploadImg.single('img'), async function (req, res, next) {
   try {
+
     const bodyReq = req.body
     const imgFile = {}
 
-    if (bodyReq.name && bodyReq.name !== '') {} else {
-      return next(555) /*  error 555 fallo al crear ad falta nombre */
+    if (!bodyReq.name && bodyReq.name === '') {
+      const error = new Error('Need name to create ad')
+      error.status = 404
+      next(error)
     }
 
-    if (bodyReq.price) {} else {
-      return next(554)/*  error 554 fallo al crear ad falta precio */
+    if (!bodyReq.price) {
+      const error = new Error('Need price to create ad')
+      error.status = 404
+      next(error)
+    } 
+
+    if (!bodyReq.state && (bodyReq.state !== 'buy' || bodyReq.state !== 'sell')) {      
+      const error = new Error('Need state to create ad')
+      error.status = 404
+      next(error)
+    } 
+
+    if (!req.file) { 
+      const error = new Error('Need image to create ad')
+      error.status = 404
+      next(error)
     }
-
-    if (bodyReq.state && (bodyReq.state === 'buy' || bodyReq.state === 'sell')) {} else {
-      return next(553)/*  error 553 fallo al crear ad falta state */
-    }
-
-    if (req.file) { imgFile.name = req.file.filename } else { imgFile.name = 'none' }
-
+    
     const ad = new Ad(bodyReq)
-    ad.img = imgFile.name // Si no hay imagen guarda none por defecto
+    ad.img = `./api/${req.file.filename}`
+
     const valueRes = await ad.save(ad)
-    res.json(['ok', valueRes])
+
+    await ad.sendQueue()
+
+    res.json(['Ad create', valueRes])
+
   } catch (err) {
-    console.log(err)
-    next(err)
+
+    const error = new Error(err)
+    error.status = 500
+    next(error)
   }
 })
 
 // Delete Ads
 router.delete('/del', async function (req, res, next) {
   try {
+
     const _id = req.query._id
-
     const valueRes = await Ad.deleteOne({ _id: _id })
-
     res.json({ deleteAds: valueRes.n })
+
   } catch (err) {
-    next(err)
+
+    const error = new Error(err)
+    error.status = 500
+
+    next(error)
   }
 })
 

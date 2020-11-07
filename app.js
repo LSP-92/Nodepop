@@ -1,29 +1,50 @@
-var createError = require('http-errors')
-var express = require('express')
-var path = require('path')
-var cookieParser = require('cookie-parser')
-var logger = require('morgan')
+const createError =   require('http-errors')
+const express =       require('express')
+const path =          require('path')
+const cookieParser =  require('cookie-parser')
+const logger =        require('morgan')
 
-var indexRouter = require('./routes/index')
-const api = require('./routes/api/ads')
+const i18n =          require('./lib/i18nConfig')
+const indexRouter =   require('./routes/index')
+const api =           require('./routes/api/ads')
+const authJwt =       require('./routes/api/authJwt')
+const authControler = require('./routes/api/auth')
+const changeLang    = require('./routes/changeLanguage')
+                      require('./lib/connectMongo')
 
-var app = express()
-require('./lib/connectMongo')
+const app =           express()
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
+
+
+// Middlewares
 
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+app.use(i18n.init)
 
-app.use('/', indexRouter)
-app.use('/api', api)
+//Routers
+
+app.use('/select',         changeLang)
+app.use('/',               indexRouter)
+app.use('/api', /* authJwt(), */ api)
+
+// Controllers
+
+app.post('/auth',          authControler.post)
+
+
 
 // catch 404 and forward to error handler
+
+
 app.use(function (req, res, next) {
   next(createError(404))
 })
@@ -36,6 +57,11 @@ app.use(function (err, req, res, next) {
 
   if (req.originalUrl.startsWith('/api')) {
     res.json({ error: err })
+    return
+  }
+
+  if (req.originalUrl.startsWith('/auth')) {
+    res.json({ error: err})
     return
   }
 
