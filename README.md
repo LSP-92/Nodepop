@@ -15,7 +15,7 @@ npm install
 You can load the database with initial data with:
 
 ```sh
-node initMongoDb.js
+npm run init_db
 ```
 
 Warning! this script delete database contents before the load.
@@ -31,6 +31,14 @@ npm run start
 
 ```sh
 npm run dev
+```
+
+## Install image converter
+
+```sh
+cd nodeapi/worker
+npm install
+
 ```
 
 ## API
@@ -68,14 +76,12 @@ GET/api
 
 ### **Create ad**
 
-POST/api/new {body: name: *required*, price: *required*, state: (buy || sell), tags: optionals, img: (image , default value-> 'none')}  
+POST/api/new {body: name: *required*, price: *required*, state: (buy || sell), tags: optionals, img: required }  
 
-* *response*: {'ok', newAd{}}  
+* *response*: {'Ad create', newAd{}}  
 
 * *error response* : error{
-    555: errorName,
-    554: errorPrice,
-    553: errorState
+    400: error.message
 }
 
 ### ***Delete Ad***
@@ -88,6 +94,28 @@ Returns: number of ads removed
 ``` ssh
 ./bin/mongod --dbpath ./data/db --directoryperdb
 ```
+
+## Image COnverter
+
+```sh
+cd nodeapi/worker
+npm start
+
+```
+
+### Image path
+
+```sh
+cd nodeapi/worker/img_converter
+
+```
+
+## Config files
+
+Change name file .env copy to .env
+
+Enter the required data
+
 
 ## Author
 
