@@ -1,0 +1,2 @@
+MONGODBCONNECT=mongodb://localhost/nodepop
+AMQP_URL_STRING=amqps://hwabxrdd:8e4nJloB8Wp2CZe84N1bavJfntglZ5rn@rattlesnake.rmq.cloudamqp.com/hwabxrdd

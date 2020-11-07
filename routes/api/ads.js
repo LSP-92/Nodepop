@@ -122,7 +122,7 @@ router.post('/new', uploadImg.single('img'), async function (req, res, next) {
     }
     
     const ad = new Ad(bodyReq)
-    ad.img = `./api/${req.file.filename}`
+    ad.img = `/api/${req.file.filename}`
 
     const valueRes = await ad.save(ad)
 

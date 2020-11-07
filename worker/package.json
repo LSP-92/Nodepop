@@ -4,12 +4,14 @@
   "description": "worker imgs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./worker/amqpReciver.js"
   },
   "keywords": [],
   "author": "Luis Sanchez Prudencio",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.6.0",
+    "dotenv": "^8.2.0",
     "jimp": "^0.16.1"
   }
 }
