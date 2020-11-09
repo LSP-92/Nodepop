@@ -34,7 +34,7 @@ app.use(i18n.init)
 
 app.use('/select',         changeLang)
 app.use('/',               indexRouter)
-app.use('/api', /* authJwt(), */ api)
+app.use('/api', authJwt(), api)
 
 // Controllers
 
